@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+
+    <style>
+        body {
+            background: #111;
+            color: #eee;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .captcha-box {
+            margin-bottom: 10px;
+            text-align: center;      
+        }
+
+
+        .container {
+            background: #1c1c1c;
+            padding: 35px;
+            border-radius: 12px;
+            width: 380px;
+            box-shadow: 0 0 15px rgba(255,255,255,0.06);
+        }
+
+        h2 {
+            margin: 0 0 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .field-wrapper {
+            margin-bottom: 18px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background: #2d2d2d;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        input:focus {
+            outline: 2px solid #4b8bff;
+        }
+
+        .button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            background: #4b8bff;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            background: #3c73d4;
+        }
+
+        .error {
+            color: #ff6f6f;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .flash-error {
+            color: #ff6f6f;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .flash-success {
+            color: #8affb5;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .captcha-box {
+            margin-bottom: 10px;
+        }
+        .link-row {
+            margin-top: 12px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .link-row a {
+            color: #4b8bff;
+            text-decoration: none;
+        }
+
+        .link-row a:hover {
+            text-decoration: underline;
+        }
+    </style>
+
+</head>
+<body>
+
+<div class="container">
+
+    <h2>Create Account</h2>
+    {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+            {% for category, msg in messages %}
+                {% if category == "error" %}
+                    <div class="flash-error">{{ msg }}</div>
+                {% elif category == "success" %}
+                    <div class="flash-success">{{ msg }}</div>
+                {% else %}
+                    <div class="flash-success">{{ msg }}</div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+        {{ form.hidden_tag() }}
+
+        <div class="field-wrapper">
+            {{ form.username(type="text") }}
+            {% for error in form.username.errors %}
+                <div class="error">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="field-wrapper">
+            {{ form.email(type="email") }}
+            {% for error in form.email.errors %}
+                <div class="error">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="field-wrapper">
+            {{ form.password(type="password") }}
+            {% for error in form.password.errors %}
+                <div class="error">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="field-wrapper">
+            {{ form.confirm_password(type="password") }}
+            {% for error in form.confirm_password.errors %}
+                <div class="error">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="field-wrapper">
+            <div class="captcha-box">
+                {{ captcha() }}
+            </div>
+            {{ form.captcha(type="text") }}
+            {% for error in form.captcha.errors %}
+                <div class="error">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+
+        {{ form.submit(class="button") }}
+    </form>
+    <div class="link-row">
+        <a href="{{ url_for('login') }}">Login instead</a>
+    </div>
+</div>
+
+</body>
+</html>

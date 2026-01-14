@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Search</title>
+
+<style>
+body {
+    background: #111;
+    color: #eee;
+    font-family: Arial, sans-serif;
+    padding: 30px;
+}
+
+a { color: #4b8bff; }
+
+.card {
+    background: #1c1c1c;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+img {
+    max-width: 100%;
+    border-radius: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<a href="{{ url_for('home') }}">← Back</a>
+<h2>Search results for "{{ query }}"</h2>
+
+{% for post in posts %}
+<div class="card">
+    <a href="{{ url_for('view_post', post_id=post.id) }}">
+        <img src="{{ url_for('uploaded_file', filename=post.image_filename) }}">
+    </a>
+    <p><b>{{ post.title | e }}</b></p>
+    <p>by {{ post.author.username }}</p>
+</div>
+{% else %}
+<p>No results found.</p>
+{% endfor %}
+
+</body>
+</html>

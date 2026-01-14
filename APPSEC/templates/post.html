@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ post.title }}</title>
+
+<style>
+body {
+    background: #111;
+    color: #eee;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.topbar {
+    background: #1c1c1c;
+    padding: 15px 25px;
+}
+
+a {
+    color: #4b8bff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.container {
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+.card {
+    background: #1c1c1c;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 0 10px rgba(255,255,255,0.05);
+}
+
+img.post-image {
+    max-width: 100%;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+button {
+    padding: 8px 14px;
+    background: #4b8bff;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+button:hover {
+    background: #3c73d4;
+}
+
+button.danger {
+    background: #ff6f6f;
+}
+
+button.danger:hover {
+    background: #d45c5c;
+}
+
+textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    background: #2d2d2d;
+    color: #fff;
+    resize: vertical;
+}
+
+.comment {
+    background: #2a2a2a;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.comment-author {
+    font-weight: bold;
+}
+
+.rating-box button {
+    margin-top: 5px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+    <a href="{{ url_for('home') }}">← Back</a>
+</div>
+
+<div class="container">
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for category, msg in messages %}
+    <div class="card">
+        {{ msg }}
+    </div>
+  {% endfor %}
+{% endwith %}
+
+<div class="card">
+    <h2>{{ post.title | e }}</h2>
+
+    <img class="post-image"
+         src="{{ url_for('uploaded_file', filename=post.image_filename) }}">
+
+    <p>
+        Average rating:
+        {% if avg_rating %}
+            <b>{{ avg_rating }}</b>
+        {% else %}
+            <i>No ratings yet</i>
+        {% endif %}
+    </p>
+
+    {% if current_user.is_authenticated and current_user.role >= 1 %}
+    <form method="POST" action="{{ url_for('rate_post', post_id=post.id) }}" class="rating-box">
+        {% for i in range(1, 6) %}
+            <button type="submit" name="rating" value="{{ i }}">{{ i }}</button>
+        {% endfor %}
+    </form>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h3>Comments</h3>
+
+    {% for comment in post.comments %}
+        <div class="comment">
+            <div class="comment-author">
+                {{ comment.author.username }}
+            </div>
+            <div>
+                {{ comment.content | e }}
+            </div>
+
+            {% if current_user.is_authenticated and
+                  (current_user.role >= 2 or comment.author_id == current_user.id) %}
+                <form method="POST"
+                      action="{{ url_for('delete_comment', comment_id=comment.id) }}"
+                      style="margin-top:5px;">
+                    <button type="submit" class="danger">Delete</button>
+                </form>
+            {% endif %}
+        </div>
+    {% else %}
+        <p>No comments yet.</p>
+    {% endfor %}
+</div>
+
+{% if current_user.is_authenticated and current_user.role >= 1 %}
+<div class="card">
+    <h4>Add comment</h4>
+    <form method="POST">
+        <textarea name="content" rows="3" required></textarea><br><br>
+        <button type="submit">Add</button>
+    </form>
+</div>
+{% endif %}
+
+{% if current_user.is_authenticated and
+      (current_user.role >= 2 or post.author_id == current_user.id) %}
+<div class="card">
+    <form method="POST" action="{{ url_for('delete_post', post_id=post.id) }}">
+        <button type="submit" class="danger">Delete post</button>
+    </form>
+</div>
+{% endif %}
+
+</div>
+</body>
+</html>

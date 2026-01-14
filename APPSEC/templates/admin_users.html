@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin – Users</title>
+
+<style>
+body {
+    background: #111;
+    color: #eee;
+    font-family: Arial, sans-serif;
+    padding: 30px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #1c1c1c;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+th, td {
+    padding: 12px;
+    border-bottom: 1px solid #2d2d2d;
+    text-align: left;
+}
+
+th {
+    background: #222;
+}
+
+button {
+    padding: 6px 10px;
+    border: none;
+    border-radius: 6px;
+    background: #4b8bff;
+    color: #fff;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #3c73d4;
+}
+
+button.danger {
+    background: #ff6f6f;
+}
+
+button.danger:hover {
+    background: #d45c5c;
+}
+
+.role-badge {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+.role-user { background: #444; }
+.role-admin { background: #4b8bff; }
+.role-superadmin { background: #ff6f6f; }
+
+a {
+    color: #4b8bff;
+}
+.flash-error {
+    color: #ff6f6f;
+    margin-bottom: 15px;
+}
+
+.flash-success {
+    color: #8affb5;
+    margin-bottom: 15px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Admin panel – users</h2>
+<a href="{{ url_for('home') }}">← Back</a>
+<br><br>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for category, msg in messages %}
+    <div class="flash-{{ category }}">{{ msg }}</div>
+  {% endfor %}
+{% endwith %}
+<table>
+<tr>
+    <th>ID</th>
+    <th>Username</th>
+    <th>Email</th>
+    <th>Role</th>
+    <th>Active</th>
+    <th>Actions</th>
+</tr>
+
+{% for u in users %}
+<tr>
+    <td>{{ u.id }}</td>
+    <td>{{ u.username }}</td>
+    <td>{{ u.email }}</td>
+    <td>
+        {% if u.role == 3 %}
+            <span class="role-badge role-superadmin">superadmin</span>
+        {% elif u.role == 2 %}
+            <span class="role-badge role-admin">admin</span>
+        {% else %}
+            <span class="role-badge role-user">user</span>
+        {% endif %}
+    </td>
+    <td>{{ u.is_active }}</td>
+    <td>
+        {% if u.id != current_user.id and u.role < 3 %}
+
+            <!-- Enable / Disable -->
+            <form method="POST"
+                  action="{{ url_for('toggle_user', user_id=u.id) }}"
+                  style="display:inline;">
+                <button type="submit">
+                    {% if u.is_active %}Disable{% else %}Enable{% endif %}
+                </button>
+            </form>
+
+            <!-- Promote / Demote -->
+            {% if current_user.role >= 2 %}
+            <form method="POST"
+                  action="{{ url_for('change_role', user_id=u.id) }}"
+                  style="display:inline;">
+                <button type="submit">
+                    {% if u.role == 1 %}Promote to admin{% else %}Demote to user{% endif %}
+                </button>
+            </form>
+            {% endif %}
+
+        {% endif %}
+    </td>
+</tr>
+{% endfor %}
+</table>
+
+</body>
+</html>
